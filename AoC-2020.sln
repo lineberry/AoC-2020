@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day-1", "Day-1\Day-1.fsproj", "{EB69B9CE-79E2-4FFA-9A51-449DF46CF60B}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Day-2", "Day-2\Day-2.fsproj", "{90CB3CD0-4165-48D2-BFCD-68361DA5F535}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,17 @@ Global
 		{EB69B9CE-79E2-4FFA-9A51-449DF46CF60B}.Release|x64.Build.0 = Release|Any CPU
 		{EB69B9CE-79E2-4FFA-9A51-449DF46CF60B}.Release|x86.ActiveCfg = Release|Any CPU
 		{EB69B9CE-79E2-4FFA-9A51-449DF46CF60B}.Release|x86.Build.0 = Release|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Debug|x64.Build.0 = Debug|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Debug|x86.Build.0 = Debug|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Release|x64.ActiveCfg = Release|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Release|x64.Build.0 = Release|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Release|x86.ActiveCfg = Release|Any CPU
+		{90CB3CD0-4165-48D2-BFCD-68361DA5F535}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

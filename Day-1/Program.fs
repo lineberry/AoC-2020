@@ -43,6 +43,7 @@ let searchForAnswer partOne (expenseReport:list<int>) =
         lookingFor
     else 0
 
+//Recusively search the list for two entries where the sum is 2020.
 let rec recurseList (expenseReport:list<int>) =
     match expenseReport with
         | head :: tail -> 
@@ -53,6 +54,7 @@ let rec recurseList (expenseReport:list<int>) =
                 | _ -> (head, result)
         | [] -> (0,0)
 
+//Impertive solution for part two because I am lame
 let sortTest (expenseReport:list<int>) = 
     let sortedList = List.sort expenseReport
     let sortedList2 = sortedList
@@ -70,12 +72,12 @@ let main argv =
     let expenseReport = readlines "input.txt"
 
     //First Implementation
-    // let targetNums = testList expenseReport
-    // let firstNumber = fst targetNums
-    // let secondNumber = snd targetNums
-    // let answer = firstNumber * secondNumber
-    // printfn "The numbers you are looking for are %i and %i." firstNumber secondNumber
-    // printfn "The answer to enter into the box is %i." answer
+    let targetNums = testList expenseReport
+    let firstNumber = fst targetNums
+    let secondNumber = snd targetNums
+    let answer = firstNumber * secondNumber
+    printfn "The numbers you are looking for are %i and %i." firstNumber secondNumber
+    printfn "The answer to enter into the box is %i." answer
 
     //Second implementation
     let targetNums2 = recurseList expenseReport
@@ -85,6 +87,7 @@ let main argv =
     printfn "The numbers you are looking for are %i and %i." firstNumber2 secondNumber2
     printfn "The answer to enter into the box is %i." answer2
 
+    //Solve part two
     sortTest expenseReport
 
     0 // return an integer exit code

@@ -3,16 +3,15 @@
 open System
 open System.IO
 open System.Collections.Generic
-
-[<Measure>] type cm
+open System.Text.RegularExpressions
 
 type Passport =
     {
         BirthYear:int option
         IssueYear:int option
         ExpirationYear:int option
-        //Height:int<cm> option
         Height:int option
+        HeightUnit: string option
         HairColor:string option
         EyeColor:string option
         PassportId:string option
@@ -24,6 +23,41 @@ type Passport =
 let readlines (filePath:string) = 
     File.ReadAllLines(filePath) |> Array.toList
 
+//#region field validation
+
+let isBirthYearValid (birthYear:int option) =
+    birthYear.IsSome && birthYear.Value >= 1920 && birthYear.Value <= 2002
+
+let isIssueYearValid (issueYear:int option) =
+    issueYear.IsSome && issueYear.Value >= 2010 && issueYear.Value <= 2020
+
+let isExpirationYearValid (expirationYear:int option) =
+    expirationYear.IsSome && expirationYear.Value >= 2020 && expirationYear.Value <= 2030
+
+let isHairColorValid (hairColor:string option) =
+    hairColor.IsSome && Regex.IsMatch(hairColor.Value, "^#[a-z0-9]{6}$")
+
+let isEyeColorValid (eyeColor:string option) =
+    match eyeColor with
+    | Some("amb") | Some("blu") | Some("brn") -> true
+    | Some("gry") | Some("grn") | Some("hzl") -> true
+    | Some("oth") -> true
+    | _ -> false
+
+let isHeightValid (heightNumber:int option) (heightUnit:string option) =
+    match (heightNumber, heightUnit) with
+    | (None, _) -> false
+    | (_, None) -> false
+    | (hn, Some("in")) when hn.Value >= 59 && hn.Value <= 76 -> true
+    | (hn, Some("cm")) when hn.Value >= 150 && hn.Value <= 193 -> true
+    | _ -> false
+
+let isPassportIdValid (passportId:string option) =
+    passportId.IsSome && Regex.IsMatch(passportId.Value, "^[0-9]{9}$")
+
+//#endregion
+
+//Valid passports for part 1 just have some data for every field other than countryId
 let isValidPassportPart1 (passport:Passport) =
     passport.BirthYear.IsSome 
     && passport.IssueYear.IsSome 
@@ -33,14 +67,15 @@ let isValidPassportPart1 (passport:Passport) =
     && passport.EyeColor.IsSome 
     && passport.PassportId.IsSome
 
+//Validate a passport using the more complex part 2 logic
 let isValidPassportPart2 (passport:Passport) =
-    passport.BirthYear.IsSome && passport.BirthYear.Value >= 1920 && passport.BirthYear.Value <= 2002
-    && passport.IssueYear.IsSome && passport.IssueYear.Value >= 2010 && passport.IssueYear.Value <= 2020
-    && passport.ExpirationYear.IsSome && passport.ExpirationYear.Value >= 2020 && passport.ExpirationYear.Value <= 2030
-    && passport.Height.IsSome 
-    && passport.HairColor.IsSome 
-    && passport.EyeColor.IsSome 
-    && passport.PassportId.IsSome && passport.PassportId.Value.Length = 9
+    isBirthYearValid passport.BirthYear
+    && isIssueYearValid passport.IssueYear
+    && isExpirationYearValid passport.ExpirationYear
+    && isHeightValid passport.Height passport.HeightUnit
+    && isHairColorValid passport.HairColor
+    && isEyeColorValid passport.EyeColor
+    && isPassportIdValid passport.PassportId
 
 let getDictOption (dict:IDictionary<string,string>) (key:string) =
     match dict.TryGetValue key with
@@ -71,10 +106,14 @@ let rec parseRecords (passportRecords:list<string>) (passportsAcc:list<Passport>
             for row in attributes do
                 attDict.Add(row.[0], row.[1])
 
+            let safeFullHeight = (getDictOption attDict "hgt")
             let safeByr = getDictOption attDict "byr"
             let safeIyr = getDictOption attDict "iyr"
             let safeEyr = getDictOption attDict "eyr"
-            let safeHgt = (getDictOption attDict "hgt").Replace("cm", "").Replace("in", "")
+            let safeHgt = safeFullHeight.Replace("cm", "").Replace("in", "")
+            let safeHightUnit = if safeFullHeight.EndsWith("cm") then Some("cm") 
+                                elif safeFullHeight.EndsWith("in") then Some("in") 
+                                else None
             let safeHcl = getDictOption attDict "hcl"
             let safeEcl = getDictOption attDict "ecl"
             let safePid = getDictOption attDict "pid"
@@ -92,10 +131,11 @@ let rec parseRecords (passportRecords:list<string>) (passportsAcc:list<Passport>
 
             let passport = 
                 { 
-                    Passport.BirthYear = byr
+                    BirthYear = byr
                     IssueYear = iyr
                     ExpirationYear = eyr
                     Height = hgt
+                    HeightUnit = safeHightUnit
                     HairColor = hcl
                     EyeColor = ecl
                     PassportId = pid
@@ -116,5 +156,7 @@ let main argv =
     printfn "There are %i valid passports for part 1." validPassports
 
     //Solve Part 2
+    let validPassports2 = Seq.filter isValidPassportPart2 passports |> Seq.length
+    printfn "There are %i valid passports for part 2." validPassports2
 
     0 // return an integer exit code

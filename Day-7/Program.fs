@@ -15,7 +15,11 @@ let extractRuleColor (rule:string) =
 let extractRules (rule:string) = 
     rule.Split([|"contain "|], StringSplitOptions.RemoveEmptyEntries).[1].Split([|", "|], StringSplitOptions.RemoveEmptyEntries)
         |> Array.map (fun x -> x.Replace(" bags", "").Replace(" bag","").Replace(".", ""))
-        |> Array.fold (fun (acc:Map<string,int>) elem -> acc.Add(elem.[2..], (elem.[0] |> charToInt ))) Map.empty
+        |> Array.fold (fun (acc:Map<string,int>) elem -> 
+            if elem.[0] = 'n' then
+                Map.empty
+            else
+                acc.Add(elem.[2..], (elem.[0] |> charToInt ))) Map.empty
 
 let parseInput (bagRules:list<string>) =
     List.fold (fun (acc:Map<string,Map<string,int>>) elem -> acc.Add(extractRuleColor elem, extractRules elem)) Map.empty bagRules
@@ -45,4 +49,6 @@ let main argv =
 
     //let answer = recursiveFindBags shinyGoldContainers allColors Set.empty
     //printfn "The answer is %i." answer.Count
+
+    Map.iter (fun k v -> printfn "Rules for %s bags: %A" k v) allColors
     0 // return an integer exit code

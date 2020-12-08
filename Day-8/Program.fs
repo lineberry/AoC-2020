@@ -56,6 +56,4 @@ let main argv =
     let answer2 = traverseInput instructions instructions nonAccInstructionsToTest Set.empty 0 0 0
     printfn "The answer for part 2 is %i." answer2
 
-    //List.iter (fun x -> printfn "%A" (parseLine x)) instructions
-
     0 // return an integer exit code

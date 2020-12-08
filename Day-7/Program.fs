@@ -27,28 +27,42 @@ let parseInput (bagRules:list<string>) =
 let findBagsThatCanContainBag (bagColor:string) (parsedInput:Map<string,Map<string,int>>) =
     Map.fold (fun (acc:Set<string>) k (v:Map<string,int>) ->  if v.ContainsKey(bagColor) then acc.Add(k) else acc) Set.empty parsedInput
 
-// let rec recursiveFindBags (bagColors:list<string>) (parsedInput:Map<string,Map<string,int>>) (recAcc:Set<string>) =
-//     match bagColors with
-//         | head::tail ->
-//             let thisBagContainers = findBagsThatCanContainBag head parsedInput
-//             let rec loop (c:Set<string>) recAcc =
-//                 match c with
-//                     | h::t -> 
-//                         let tbc = findBagsThatCanContainBag h parsedInput
-//                         loop t recAcc
-//                     | [] -> recAcc
 
-//             recursiveFindBags tail parsedInput (recAcc.(head))
-//         | [] -> recAcc
+let rec recurseBagsUp (bagSequence:seq<string>) (allBags:Map<string,Map<string,int>>) (bagAcc:list<string>) =
+    let thisLevel = seq {
+        for color in bagSequence do
+            yield! findBagsThatCanContainBag color allBags
+    }
+
+    let bagList = List.ofSeq thisLevel 
+
+    if bagList.Length <> 0 then
+        recurseBagsUp thisLevel allBags (bagAcc @ bagList)
+    else bagAcc
+
+// let rec recurseBagsDown (bagSequence:seq<string>) (allBags:Map<string,Map<string,int>>) (bagAcc:list<string>) =
+//     let thisLevel = seq {
+//         for color in bagSequence do
+//             yield! allBags.[color]
+//     }
+
+//     let bagList = List.ofSeq thisLevel 
+
+//     if bagList.Length <> 0 then
+//         recurseBagsDown thisLevel allBags (bagAcc @ bagList)
+//     else bagAcc
 
 [<EntryPoint>]
 let main argv =
     let bagRules = readlines "input.txt"
     let allColors = parseInput bagRules
-    let shinyGoldContainers = findBagsThatCanContainBag "shiny gold"  allColors |> Set.toList
+    let shinyGoldContainers = recurseBagsUp (Seq.singleton "shiny gold") allColors list.Empty |> Seq.distinct |> List.ofSeq
 
-    //let answer = recursiveFindBags shinyGoldContainers allColors Set.empty
-    //printfn "The answer is %i." answer.Count
+    //Answer part 1
+    printfn "Answer for part 1 is %i." shinyGoldContainers.Length
 
-    Map.iter (fun k v -> printfn "Rules for %s bags: %A" k v) allColors
+    //Answer part 2
+    //let shinyGoldContents = recurseBagsDown (Seq.singleton "shiny gold") allColors list.Empty
+
+    //Map.iter (fun k v -> printfn "Rules for %s bags: %A" k v) allColors
     0 // return an integer exit code

@@ -14,21 +14,6 @@ let parseLine (instructionLine:string) =
 let transformInput (instructionList:list<string>) =
     List.map parseLine instructionList
 
-let rec traverseInput (instructionList:list<(string*int)>) (indexAcc:Set<int>) currentIndex (acc:int) =
-    if (indexAcc.Contains currentIndex) then
-        acc
-    else
-        let instructionTuple = instructionList.[currentIndex]
-        let instruction = fst instructionTuple
-        let modifier = snd instructionTuple
-        let indexesVisited = indexAcc.Add(currentIndex)
-
-        match instruction with
-            | "nop" -> traverseInput instructionList indexesVisited (currentIndex+1)  acc
-            | "jmp" -> traverseInput instructionList indexesVisited (currentIndex+modifier)  acc
-            | "acc" -> traverseInput instructionList indexesVisited (currentIndex+1) (acc+modifier)
-            | _ -> acc
-
 let getNonAccInstructions (instructionList:list<(string*int)>) =
     seq {
             for i in 0..instructionList.Length-1 do
@@ -40,40 +25,35 @@ let swapOutPart2Instruction (instructionList:list<(string*int)>) indexToReplace 
     let newInstruction = if oldInstruction = "nop" then "jmp" else "nop"
     instructionList.[0..indexToReplace-1] @ [(newInstruction, originalModifier)] @ instructionList.[indexToReplace+1..]
 
-let rec traversePart2 (originalInstructionList:list<(string*int)>) (modifiedInstructionList:list<(string*int)>) (nonAccInstructionList:list<(int*string*int)>) (indexAcc:Set<int>) currentIndex (acc:int) indAcc =
+let rec traverseInput (originalInstructionList:list<(string*int)>) (modifiedInstructionList:list<(string*int)>) (nonAccInstructionList:list<(int*string*int)>) (indexAcc:Set<int>) currentIndex (acc:int) loopAcc =
     if (indexAcc.Contains currentIndex) then
-        printfn "Loop found. Visited %i lines." indexAcc.Count
-        let indexToReplace, oldInstruction, modifer = nonAccInstructionList.[indAcc]
+        printfn "Loop found on iteration %i." loopAcc
+        if loopAcc = 0 then printfn "Answer for part 1 is %i." acc
+        let indexToReplace, oldInstruction, modifer = nonAccInstructionList.[loopAcc]
         let newInstructionListToTest = swapOutPart2Instruction originalInstructionList indexToReplace oldInstruction modifer
 
         //Reset and try with a new input list
-        traversePart2 originalInstructionList newInstructionListToTest nonAccInstructionList Set.empty 0 0 (indAcc+1)
+        traverseInput originalInstructionList newInstructionListToTest nonAccInstructionList Set.empty 0 0 (loopAcc+1)
     elif currentIndex = 638 then
         printfn "Program terminated."
         acc
     else
-        let instructionTuple = modifiedInstructionList.[currentIndex]
-        let instruction = fst instructionTuple
-        let modifier = snd instructionTuple
+        let instruction, modifier = modifiedInstructionList.[currentIndex]
         let indexesVisited = indexAcc.Add(currentIndex)
 
         match instruction with
-            | "nop" -> traversePart2 originalInstructionList modifiedInstructionList nonAccInstructionList indexesVisited (currentIndex+1)  acc indAcc
-            | "jmp" -> traversePart2 originalInstructionList modifiedInstructionList nonAccInstructionList indexesVisited (currentIndex+modifier)  acc indAcc
-            | "acc" -> traversePart2 originalInstructionList modifiedInstructionList nonAccInstructionList indexesVisited (currentIndex+1) (acc+modifier) indAcc
+            | "nop" -> traverseInput originalInstructionList modifiedInstructionList nonAccInstructionList indexesVisited (currentIndex+1)  acc loopAcc
+            | "jmp" -> traverseInput originalInstructionList modifiedInstructionList nonAccInstructionList indexesVisited (currentIndex+modifier)  acc loopAcc
+            | "acc" -> traverseInput originalInstructionList modifiedInstructionList nonAccInstructionList indexesVisited (currentIndex+1) (acc+modifier) loopAcc
             | _ -> acc
 
 [<EntryPoint>]
 let main argv =
     let instructions = readlines "input.txt" |> transformInput
 
-    //Solve part 1
-    let answer = traverseInput instructions Set.empty 0 0 
-    printfn "The answer for part 1 is %i." answer
-
-    //Solve part 2
+    //Solve part 1 & 2
     let nonAccInstructionsToTest = getNonAccInstructions instructions
-    let answer2 = traversePart2 instructions instructions nonAccInstructionsToTest Set.empty 0 0 0
+    let answer2 = traverseInput instructions instructions nonAccInstructionsToTest Set.empty 0 0 0
     printfn "The answer for part 2 is %i." answer2
 
     //List.iter (fun x -> printfn "%A" (parseLine x)) instructions

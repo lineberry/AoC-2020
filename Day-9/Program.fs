@@ -30,7 +30,7 @@ let rec traverseInputPart1 (input:list<int64>) indexAcc =
                 input.[indexAcc+25]
         | [] -> failwith "Didn't find an answer."
 
-let rec traverseInputPart2 (outerLoopInput:list<int64>) (input:list<int64>) (rangeAcc:list<int64>) indexAcc =
+let rec traverseInputPart2 (outerLoopInput:list<int64>) (input:list<int64>) (rangeAcc:list<int64>) =
     match input with
         | head::tail ->
             let listSoFar = rangeAcc @ [head]
@@ -38,10 +38,10 @@ let rec traverseInputPart2 (outerLoopInput:list<int64>) (input:list<int64>) (ran
             if sumSoFar = 1930745883L then
                 (List.min listSoFar) + (List.max listSoFar)
             elif sumSoFar > 1930745883L then
-                let newListToTraverse = outerLoopInput.[(indexAcc+1)..]
-                traverseInputPart2 newListToTraverse newListToTraverse [] 0
+                let newListToTraverse = outerLoopInput.[1..]
+                traverseInputPart2 newListToTraverse newListToTraverse []
             else 
-                traverseInputPart2 outerLoopInput tail listSoFar indexAcc
+                traverseInputPart2 outerLoopInput tail listSoFar
         | [] -> failwith "Didn't find an answer."
 
 [<EntryPoint>]
@@ -52,7 +52,7 @@ let main argv =
     let answer = traverseInputPart1 input 0
     printfn "The answer for part 1 is %i." answer
 
-    let answer2 = traverseInputPart2 input input [] 0
+    let answer2 = traverseInputPart2 input input []
     printfn "The answer for part 2 is %i." answer2
 
     0 // return an integer exit code

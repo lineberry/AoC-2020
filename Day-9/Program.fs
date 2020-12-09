@@ -30,18 +30,19 @@ let rec traverseInputPart1 (input:list<int64>) indexAcc =
                 input.[indexAcc+25]
         | [] -> failwith "Didn't find an answer."
 
-let rec traverseInputPart2 (outerLoopInput:list<int64>) (input:list<int64>) (rangeAcc:list<int64>) =
+//Recurse the outerLoopInput looking for a contiguous list of numbers that add up to the magic number to solve part 2
+let rec traverseInputPart2 (outerLoopInput:list<int64>) (input:list<int64>) (rangeAcc:list<int64>) targetNumber =
     match input with
         | head::tail ->
             let listSoFar = rangeAcc @ [head]
             let sumSoFar = List.sum listSoFar
-            if sumSoFar = 1930745883L then
+            if sumSoFar = targetNumber then
                 (List.min listSoFar) + (List.max listSoFar)
-            elif sumSoFar > 1930745883L then
+            elif sumSoFar > targetNumber then
                 let newListToTraverse = outerLoopInput.[1..]
-                traverseInputPart2 newListToTraverse newListToTraverse []
+                traverseInputPart2 newListToTraverse newListToTraverse [] targetNumber
             else 
-                traverseInputPart2 outerLoopInput tail listSoFar
+                traverseInputPart2 outerLoopInput tail listSoFar targetNumber
         | [] -> failwith "Didn't find an answer."
 
 [<EntryPoint>]
@@ -52,7 +53,7 @@ let main argv =
     let answer = traverseInputPart1 input 0
     printfn "The answer for part 1 is %i." answer
 
-    let answer2 = traverseInputPart2 input input []
+    let answer2 = traverseInputPart2 input input [] answer
     printfn "The answer for part 2 is %i." answer2
 
     0 // return an integer exit code

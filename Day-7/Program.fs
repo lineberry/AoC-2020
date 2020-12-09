@@ -40,17 +40,25 @@ let rec recurseBagsUp (bagSequence:seq<string>) (allBags:Map<string,Map<string,i
         recurseBagsUp thisLevel allBags (bagAcc @ bagList)
     else bagAcc
 
-// let rec recurseBagsDown (bagSequence:seq<string>) (allBags:Map<string,Map<string,int>>) (bagAcc:list<string>) =
-//     let thisLevel = seq {
-//         for color in bagSequence do
-//             yield! allBags.[color]
-//     }
+let rec recurseBagsDown (bagSequence:seq<string>) (allBags:Map<string,Map<string,int>>) (bagAcc:list<string>) =
+    let thisLevel = seq {
+        for color in bagSequence do
+            yield! allBags.[color]
+    }
 
-//     let bagList = List.ofSeq thisLevel 
+    let levelSeqRepresentation = seq{
+        for kvp in thisLevel do
+            for i = 1 to kvp.Value do
+                yield kvp.Key
+    }
 
-//     if bagList.Length <> 0 then
-//         recurseBagsDown thisLevel allBags (bagAcc @ bagList)
-//     else bagAcc
+    let levelListRespresentation = List.ofSeq levelSeqRepresentation
+    let soFar = bagAcc @ levelListRespresentation
+
+    if levelListRespresentation.Length = 0 then
+        soFar
+    else
+        recurseBagsDown levelSeqRepresentation allBags soFar
 
 [<EntryPoint>]
 let main argv =
@@ -62,7 +70,8 @@ let main argv =
     printfn "Answer for part 1 is %i." shinyGoldContainers.Length
 
     //Answer part 2
-    //let shinyGoldContents = recurseBagsDown (Seq.singleton "shiny gold") allColors list.Empty
+    let shinyGoldContents = recurseBagsDown (Seq.singleton "shiny gold") allColors list.Empty
+    printfn "Answer for part 2 is %i." shinyGoldContents.Length
 
     //Map.iter (fun k v -> printfn "Rules for %s bags: %A" k v) allColors
     0 // return an integer exit code

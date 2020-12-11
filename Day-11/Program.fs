@@ -17,8 +17,7 @@ let rec findNearestSeat x y radius (slope:(int*int)) (grid:char[,]) =
     if isSeatIndexInvalid (x+xSlope) (y+ySlope) gridWidth gridHeight || grid.[x+xSlope,y+ySlope] <> '.' then (x+xSlope,y+ySlope)
     else findNearestSeat x y (radius+1) slope grid
 
-//0,0 in the top left
-//y increasing down
+//0,0 in the top left.  y increases going down
 let getNeighborIndexes x y (grid:char[,]) partId =
     if partId = 1 then
         [x-1,y-1; x,y-1; x+1,y-1;

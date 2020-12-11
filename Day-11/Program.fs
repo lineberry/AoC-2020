@@ -1,12 +1,12 @@
 ﻿open System
 open System.IO
 
-//Read the input file and turn it into an array of strings
+//Read the input file and turn it into a matrix of characters
 let readlines (filePath:string) = 
     File.ReadAllLines(filePath) |> Array.map (fun x -> x.ToCharArray()) |> array2D
 
-let isSeatIndexValid x y gridWidth gridHeight =
-    not (x < 0 || y < 0 || x > gridWidth - 1 || y > gridHeight - 1)
+let isSeatIndexInvalid x y gridWidth gridHeight =
+    x < 0 || y < 0 || x > gridWidth - 1 || y > gridHeight - 1
 
 let rec findNearestSeat x y radius (slope:(int*int)) (grid:char[,]) =
     let gridWidth = Array2D.length1 grid
@@ -14,7 +14,7 @@ let rec findNearestSeat x y radius (slope:(int*int)) (grid:char[,]) =
     let xSlope = fst slope * radius
     let ySlope = snd slope * radius
 
-    if not (isSeatIndexValid (x+xSlope) (y+ySlope) gridWidth gridHeight) || grid.[x+xSlope,y+ySlope] <> '.' then (x+xSlope,y+ySlope)
+    if isSeatIndexInvalid (x+xSlope) (y+ySlope) gridWidth gridHeight || grid.[x+xSlope,y+ySlope] <> '.' then (x+xSlope,y+ySlope)
     else findNearestSeat x y (radius+1) slope grid
 
 //0,0 in the top left
@@ -25,13 +25,13 @@ let getNeighborIndexes x y (grid:char[,]) partId =
          x-1,y;            x+1,y;
          x-1,y+1; x,y+1;  x+1,y+1]
     else
-        let slopes = [(-1,-1); (0,-1); (1,-1);
-                      (-1,0);           (1,0);
-                      (-1,1);  (0,1);   (1,1)]
-        List.map (fun s -> findNearestSeat x y 1 s grid) slopes 
+        [(-1,-1); (0,-1); (1,-1);
+         (-1,0);           (1,0);
+         (-1,1);  (0,1);   (1,1)] |>
+        List.map (fun s -> findNearestSeat x y 1 s grid) 
 
 let isSeatOccupied x y (grid:char[,]) =
-    if not (isSeatIndexValid x y (Array2D.length1 grid) (Array2D.length2 grid)) then 0
+    if isSeatIndexInvalid x y (Array2D.length1 grid) (Array2D.length2 grid) then 0
     else
         match grid.[x,y] with
         | '#' -> 1
@@ -47,8 +47,8 @@ let getNewSeatState x y (grid:char[,]) partId =
     let tooManyNeighbors = if partId = 1 then 4 else 5
 
     match countOfOccupiedNeighbors with
-    | x when currentState = '#' && x >= tooManyNeighbors -> 'L'
-    | x when currentState = 'L' && x = 0 -> '#'
+    | count when currentState = '#' && count >= tooManyNeighbors -> 'L'
+    | count when currentState = 'L' && count = 0 -> '#'
     | _ -> currentState
 
 let calcGameRound (grid:char[,]) partId =
@@ -57,9 +57,9 @@ let calcGameRound (grid:char[,]) partId =
 let getTotalOccupiedSeats (grid:char[,]) =
     grid |> Seq.cast |> Seq.filter (fun x -> x = '#') |> Seq.length
 
-let rec gameLoop (prevRound:char[,]) partId =
-    let nextRound = calcGameRound prevRound partId
-    if prevRound = nextRound then
+let rec gameLoop (currentGridState:char[,]) partId =
+    let nextRound = calcGameRound currentGridState partId
+    if currentGridState = nextRound then
         getTotalOccupiedSeats nextRound
     else gameLoop nextRound partId
 

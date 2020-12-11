@@ -63,7 +63,6 @@ let rec gameLoop (currentGridState:char[,]) partId =
         getTotalOccupiedSeats nextRound
     else gameLoop nextRound partId
 
-
 [<EntryPoint>]
 let main argv =
     let input = readlines "input.txt"

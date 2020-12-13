@@ -50,40 +50,13 @@ let advanceFerry (ferry:Ferry) spotsToAdvance =
 let advanceSystem (ferry:Ferry) timesToAdvance =
     { ferry with XPos = ferry.XPos + ferry.WaypointXPos * timesToAdvance; YPos = ferry.YPos + ferry.WaypointYPos * timesToAdvance }
 
-//Find a better algorithm for this
 let turnFerry (ferry:Ferry) (instruction:(char*int)) =
-    match instruction with
-    | ('L',deg) -> 
-        match ferry.Facing with
-        | 'N' when deg = 90 -> {ferry with Facing = 'W'}
-        | 'N' when deg = 180 -> {ferry with Facing = 'S'}
-        | 'N' when deg = 270 -> {ferry with Facing = 'E'}
-        | 'S' when deg = 90 -> {ferry with Facing = 'E'}
-        | 'S' when deg = 180 -> {ferry with Facing = 'N'}
-        | 'S' when deg = 270 -> {ferry with Facing = 'W'}
-        | 'E' when deg = 90 -> {ferry with Facing = 'N'}
-        | 'E' when deg = 180 -> {ferry with Facing = 'W'}
-        | 'E' when deg = 270 -> {ferry with Facing = 'S'}
-        | 'W' when deg = 90 -> {ferry with Facing = 'S'}
-        | 'W' when deg = 180 -> {ferry with Facing = 'E'}
-        | 'W' when deg = 270 -> {ferry with Facing = 'N'}
-        | _ -> ferry
-    | ('R',deg) ->
-        match ferry.Facing with
-        | 'N' when deg = 90 -> {ferry with Facing = 'E'}
-        | 'N' when deg = 180 -> {ferry with Facing = 'S'}
-        | 'N' when deg = 270 -> {ferry with Facing = 'W'}
-        | 'S' when deg = 90 -> {ferry with Facing = 'W'}
-        | 'S' when deg = 180 -> {ferry with Facing = 'N'}
-        | 'S' when deg = 270 -> {ferry with Facing = 'E'}
-        | 'E' when deg = 90 -> {ferry with Facing = 'S'}
-        | 'E' when deg = 180 -> {ferry with Facing = 'W'}
-        | 'E' when deg = 270 -> {ferry with Facing = 'N'}
-        | 'W' when deg = 90 -> {ferry with Facing = 'N'}
-        | 'W' when deg = 180 -> {ferry with Facing = 'E'}
-        | 'W' when deg = 270 -> {ferry with Facing = 'S'}
-        | _ -> ferry
-    | _ -> failwith "Encountered invalid instruction in turnFerry."
+    let compass = [| 'N'; 'E'; 'S'; 'W' |]
+    let currentHeadingIndex = Array.findIndex (fun x -> x = ferry.Facing) compass
+    let turnModifier = if fst instruction = 'L' then -1 else 1
+    let turnsToMake = snd instruction / 90 * turnModifier
+    let newIndex = (4 + currentHeadingIndex + turnsToMake) % 4
+    {ferry with Facing = compass.[newIndex]}
 
 let rotateWaypoint (ferry:Ferry) (instruction:(char*int)) =
     match instruction with

@@ -44,14 +44,11 @@ let moveWaypoint (ferry:Ferry) (instruction:(char*int)) =
     | ('W',x) -> { ferry with WaypointXPos = ferry.WaypointXPos - x }
     | _ -> failwith "Encountered invalid instruction in moveWaypoint."
 
-let advanceFerry (ferry:Ferry) (instruction:(char*int)) =
-    moveFerry ferry (ferry.Facing,snd instruction)
+let advanceFerry (ferry:Ferry) spotsToAdvance =
+    moveFerry ferry (ferry.Facing,spotsToAdvance)
 
-let advanceSystem (ferry:Ferry) (instruction:(char*int)) =
-    let timesToAdvance = snd instruction
-    let xToAdvance = ferry.WaypointXPos * timesToAdvance
-    let yToAdvance = ferry.WaypointYPos * timesToAdvance
-    { ferry with XPos = ferry.XPos + xToAdvance; YPos = ferry.YPos + yToAdvance }
+let advanceSystem (ferry:Ferry) timesToAdvance =
+    { ferry with XPos = ferry.XPos + ferry.WaypointXPos * timesToAdvance; YPos = ferry.YPos + ferry.WaypointYPos * timesToAdvance }
 
 //Find a better algorithm for this
 let turnFerry (ferry:Ferry) (instruction:(char*int)) =
@@ -99,15 +96,15 @@ let getNewFerryState (ferry:Ferry) (instruction:(char*int)) =
     match instruction with
     | ('N',_) | ('S',_) | ('E',_) | ('W',_) -> moveFerry ferry instruction
     | ('L',_) | ('R',_) -> turnFerry ferry instruction
-    | ('F',_) -> advanceFerry ferry instruction
-    | (_,_) -> failwith "Encountred invalid instruction in getNewFerryState."
+    | ('F',x) -> advanceFerry ferry x
+    | _ -> failwith "Encountred invalid instruction in getNewFerryState."
 
 let getNewSystemState (ferry:Ferry) (instruction:(char*int)) =
     match instruction with
     | ('N',_) | ('S',_) | ('E',_) | ('W',_) -> moveWaypoint ferry instruction
     | ('L',_) | ('R',_) -> rotateWaypoint ferry instruction
-    | ('F',_) -> advanceSystem ferry instruction
-    | (_,_) -> failwith "Encountred invalid instruction in getNewSystenState."
+    | ('F',x) -> advanceSystem ferry x
+    | _ -> failwith "Encountred invalid instruction in getNewSystenState."
 
 let rec eventLoop (ferry:Ferry) (instructions:list<(char*int)>) =
     match instructions with 
